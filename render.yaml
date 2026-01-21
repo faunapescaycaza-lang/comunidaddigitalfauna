@@ -11,7 +11,11 @@ services:
         value: production
       - key: DATABASE_URL
         sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+        sync: false
       - key: RESEND_API_KEY
         sync: false
-      - key: CLOUDINARY_URL
+      - key: NEXT_PUBLIC_APP_URL
         sync: false

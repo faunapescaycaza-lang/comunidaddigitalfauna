@@ -178,8 +178,13 @@ export async function createReport(
 
         if (validatedFields.data.email) {
       try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+        const emailUrl = `${appUrl}/api/send-email`;
+
+        console.log('Attempting to send email to:', emailUrl);
+
         // Disparar la API de envío de correo sin esperar la respuesta
-        fetch(new URL('/api/send-email', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'), {
+        fetch(emailUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -188,6 +193,8 @@ export async function createReport(
             email: validatedFields.data.email,
             name: validatedFields.data.nombre,
           }),
+        }).catch(err => {
+          console.error("Email API fetch error:", err);
         });
       } catch (emailError) {
         // Si el fetch falla (ej. error de red), solo lo registramos.
@@ -262,17 +269,43 @@ export async function createReport(
 
           .execute();
 
-    
+
 
         for (const imagen of imagenes) {
 
-          // Extraer public_id de la URL de Cloudinary
+          try {
 
-          const publicId = imagen.url.split('/').pop()?.split('.')[0];
+            // Extraer public_id de la URL de Cloudinary
 
-          if (publicId) {
+            // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/v{version}/{folder}/{public_id}.{extension}
 
-            await cloudinary.uploader.destroy(`fauna-comunidad/${publicId}`);
+            const urlParts = imagen.url.split('/');
+
+            const uploadIndex = urlParts.findIndex(part => part === 'upload');
+
+
+
+            if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
+
+              // Get everything after 'upload/v{version}/' and remove extension
+
+              const pathAfterUpload = urlParts.slice(uploadIndex + 2).join('/');
+
+              const publicId = pathAfterUpload.split('.')[0]; // Remove extension
+
+
+
+              console.log('Attempting to delete from Cloudinary:', publicId);
+
+              await cloudinary.uploader.destroy(publicId);
+
+            }
+
+          } catch (cloudinaryError) {
+
+            console.error('Error deleting image from Cloudinary:', cloudinaryError);
+
+            // Continue with database deletion even if Cloudinary deletion fails
 
           }
 

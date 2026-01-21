@@ -24,7 +24,7 @@ export default function RootLayout({
         className={`${inter.variable} antialiased bg-gray-950 text-white`}
       >
         <Image
-          src="/SILUETA SIN FONDONIÑAGUARDIAN.png"
+          src="/nina-guardian.png"
           alt="Silueta"
           width={80}
           height={120}
