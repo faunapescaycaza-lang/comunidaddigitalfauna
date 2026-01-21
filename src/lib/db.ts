@@ -5,7 +5,9 @@ import type { DB } from './db-types'
 const dialect = new PostgresDialect({
   pool: new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: true,
+    ssl: {
+      rejectUnauthorized: false
+    },
   })
 })
 
