@@ -1,11 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { ReportForm } from "./ReportForm";
 import { PlusCircle, XCircle } from "lucide-react";
 
 export const FormToggler = ({ isAdmin }: { isAdmin: boolean }) => {
   const [showForm, setShowForm] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Abrir el formulario automáticamente si viene el parámetro openForm
+    if (searchParams.get("openForm") === "true") {
+      setShowForm(true);
+    }
+  }, [searchParams]);
 
   return (
     <>

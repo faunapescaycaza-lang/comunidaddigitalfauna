@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:generate": "kysely-codegen --dialect=postgres --out-file src/lib/db-types.ts"
+    "db:generate": "kysely-codegen --dialect=postgres --out-file src/lib/db-types.ts",
+    "generate-qr": "node generate-qr.js"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.0.6",
@@ -24,6 +25,7 @@
     "lucide-react": "^0.562.0",
     "next": "^14.2.35",
     "pg": "^8.17.1",
+    "qrcode": "^1.5.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "resend": "^6.8.0",
