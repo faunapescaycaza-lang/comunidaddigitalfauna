@@ -7,6 +7,9 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Exportar cloudinary configurado
+export { cloudinary };
+
 // Función para subir un archivo a Cloudinary
 export async function uploadImageToCloudinary(file: File) {
   const fileBuffer = await file.arrayBuffer();

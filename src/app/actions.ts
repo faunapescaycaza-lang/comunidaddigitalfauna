@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "../lib/db";
 import { revalidatePath } from "next/cache";
 import { createId } from "@paralleldrive/cuid2";
+import { cloudinary } from "../lib/cloudinary";
 
 // Esquema de validación con Zod
 
