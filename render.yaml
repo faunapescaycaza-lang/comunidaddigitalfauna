@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: fauna-comunidad
+    env: node
+    plan: starter
+    buildCommand: "npm install && npm run db:generate && npm run build"
+    startCommand: "npm run start"
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
