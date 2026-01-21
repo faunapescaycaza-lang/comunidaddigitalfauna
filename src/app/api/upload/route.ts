@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
 import { uploadImageToCloudinary } from "@/lib/cloudinary";
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '5mb',
-    },
-  },
-};
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   const formData = await request.formData();
