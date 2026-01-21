@@ -27,11 +27,11 @@
     "zod": "^4.3.5",
     "typescript": "^5",
     "@types/react": "^18",
-    "@types/node": "^20"
+    "@types/node": "^20",
+    "@types/pg": "^8.16.0",
+    "@types/react-dom": "^18"
   },
   "devDependencies": {
-    "@types/pg": "^8.16.0",
-    "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "^14.2.35",
     "tailwindcss": "^4"
