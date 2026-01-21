@@ -1,5 +1,10 @@
 import { db } from "../lib/db";
 import { ReportCard } from "./ReportCard";
+import type { Reporte, Imagen } from "../lib/db-types";
+
+type ReportWithImages = Reporte & {
+  imagenes: Imagen[];
+};
 
 export const Feed = async ({ isAdmin }: { isAdmin: boolean }) => { // Accept isAdmin as prop
   const reportesData = await db
@@ -8,14 +13,14 @@ export const Feed = async ({ isAdmin }: { isAdmin: boolean }) => { // Accept isA
     .orderBy("createdAt", "desc")
     .execute();
 
-  const reports = await Promise.all(
-    reportesData.map(async (reporte) => {
+  const reports: ReportWithImages[] = await Promise.all(
+    reportesData.map(async (reporte): Promise<ReportWithImages> => {
       const imagenes = await db
         .selectFrom("Imagen")
         .selectAll()
         .where("reporteId", "=", reporte.id)
         .execute();
-      return { ...reporte, imagenes };
+      return { ...reporte, imagenes } as unknown as ReportWithImages;
     })
   );
 
