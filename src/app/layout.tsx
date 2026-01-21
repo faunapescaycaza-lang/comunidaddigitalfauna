@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Fauna Comunidad",
+  title: "Fauna Comunidad Digital",
   description: "Una plataforma para compartir avistamientos de fauna.",
 };
 

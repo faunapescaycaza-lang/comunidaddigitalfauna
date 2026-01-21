@@ -33,7 +33,7 @@ export const Navbar = ({ isAdmin, setIsAdmin }: NavbarProps) => {
       <header className="sticky top-0 z-50 w-full border-b border-purple-400/20 bg-gray-900/80 backdrop-blur-lg">
         <div className="flex h-24 w-full items-center justify-between p-4">
           <div>
-            <span className="text-3xl font-bold tracking-tight text-white">Fauna Comunidad</span>
+            <span className="text-3xl font-bold tracking-tight text-white">Fauna Comunidad Digital</span>
             <span className="ml-3 text-2xl font-light text-purple-300 hidden sm:inline">: Guardianes de la Fauna Silvestre</span>
           </div>
           <div className="flex items-center space-x-4"> {/* Wrapper for button and image */}

@@ -38,7 +38,7 @@ export const Feed = async ({ isAdmin }: { isAdmin: boolean }) => { // Accept isA
   return (
     <div className="mt-16">
       <h2 className="mb-8 text-3xl font-bold tracking-tight text-white/90">
-        Últimos Avistamientos
+        Registro de Guardianes
       </h2>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {reports.map((report, index) => (
