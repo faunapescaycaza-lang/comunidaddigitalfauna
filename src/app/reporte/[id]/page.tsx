@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { db } from "../../../lib/db";
 import Image from "next/image";
 import Link from "next/link"; // Import Link
 import { notFound } from "next/navigation";

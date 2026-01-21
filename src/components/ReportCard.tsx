@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { ReporteTable, ImagenTable } from "@/lib/db-types";
+import type { ReporteTable, ImagenTable } from "../lib/db-types";
 import { User, Calendar, Edit, Trash2, Camera } from "lucide-react"; // Import Edit and Trash2 icons
-import { deleteReport } from "@/app/actions"; // Import the server action
+import { deleteReport } from "../app/actions"; // Import the server action
 import { useTransition } from "react";
 
 // Extendemos el tipo Reporte para incluir las imágenes

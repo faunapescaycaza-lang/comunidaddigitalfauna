@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FormToggler } from "@/components/FormToggler";
+import { FormToggler } from "./FormToggler";
 // import { Feed } from "@/components/Feed"; // Feed is now passed as children
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "./Navbar";
 
 interface AdminContextWrapperProps {
   isAdmin: boolean;

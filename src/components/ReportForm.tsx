@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useFormState } from "react-dom";
 import { Camera, Calendar, User, Mail, AlertCircle, MapPin } from "lucide-react"; // Import MapPin
-import { createReport, type FormState } from "@/app/actions";
+import { createReport, type FormState } from "../app/actions";
 import { SubmitButton } from "./SubmitButton";
 
 const MAX_IMAGES = 5;

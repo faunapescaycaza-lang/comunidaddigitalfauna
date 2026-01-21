@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { db } from "../lib/db";
 import { ReportCard } from "./ReportCard";
 
 export const Feed = async ({ isAdmin }: { isAdmin: boolean }) => { // Accept isAdmin as prop

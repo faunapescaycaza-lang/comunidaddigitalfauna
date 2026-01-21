@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { uploadImageToCloudinary } from "../../../lib/cloudinary";
 
 export const dynamic = 'force-dynamic';
 

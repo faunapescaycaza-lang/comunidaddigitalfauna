@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { getGuardianCardHtml } from "@/lib/email-template";
+import { getGuardianCardHtml } from "../../../lib/email-template";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

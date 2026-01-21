@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ReportForm } from "@/components/ReportForm";
+import { ReportForm } from "./ReportForm";
 import { PlusCircle, XCircle } from "lucide-react";
 
 export const FormToggler = ({ isAdmin }: { isAdmin: boolean }) => {

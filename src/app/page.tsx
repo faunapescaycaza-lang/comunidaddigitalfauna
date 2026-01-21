@@ -1,6 +1,6 @@
 import { headers } from "next/headers"; // Import headers
-import { AdminContextWrapper } from "@/components/AdminContextWrapper";
-import { Feed } from "@/components/Feed"; // Import Feed
+import { AdminContextWrapper } from "../components/AdminContextWrapper";
+import { Feed } from "../components/Feed"; // Import Feed
 import Image from "next/image";
 
 export default async function Home() {
