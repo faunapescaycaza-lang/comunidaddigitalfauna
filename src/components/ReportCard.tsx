@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Reporte, Imagen } from "../lib/db-types";
 import { User, Calendar, Edit, Trash2, Camera } from "lucide-react"; // Import Edit and Trash2 icons
 import { deleteReport } from "../app/actions"; // Import the server action
-import { useTransition } from "react";
+import { useTransition, useState, useEffect } from "react";
 
 // Extendemos el tipo Reporte para incluir las imágenes
 type ReportWithImages = Reporte & {
@@ -23,12 +23,17 @@ export const ReportCard = ({ report, index, isAdmin }: ReportCardProps) => {
   const firstImage = imagenes[0];
   const extraImagesCount = imagenes.length - 1;
   const [isPending, startTransition] = useTransition();
+  const [formattedDate, setFormattedDate] = useState("");
 
-  const formattedDate = new Date(fecha as unknown as Date).toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  useEffect(() => {
+    setFormattedDate(
+      new Date(fecha as unknown as Date).toLocaleDateString("es-ES", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    );
+  }, [fecha]);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault(); // Detiene la navegación del Link
