@@ -7,22 +7,36 @@ type ReportWithImages = Reporte & {
 };
 
 export const Feed = async ({ isAdmin }: { isAdmin: boolean }) => { // Accept isAdmin as prop
-  const reportesData = await db
-    .selectFrom("Reporte")
-    .selectAll()
-    .orderBy("createdAt", "desc")
-    .execute();
+  let reports: ReportWithImages[] = [];
 
-  const reports: ReportWithImages[] = await Promise.all(
-    reportesData.map(async (reporte): Promise<ReportWithImages> => {
-      const imagenes = await db
-        .selectFrom("Imagen")
-        .selectAll()
-        .where("reporteId", "=", reporte.id)
-        .execute();
-      return { ...reporte, imagenes } as unknown as ReportWithImages;
-    })
-  );
+  try {
+    const reportesData = await db
+      .selectFrom("Reporte")
+      .selectAll()
+      .orderBy("createdAt", "desc")
+      .execute();
+
+    reports = await Promise.all(
+      reportesData.map(async (reporte): Promise<ReportWithImages> => {
+        const imagenes = await db
+          .selectFrom("Imagen")
+          .selectAll()
+          .where("reporteId", "=", reporte.id)
+          .execute();
+        return { ...reporte, imagenes } as unknown as ReportWithImages;
+      })
+    );
+  } catch (error) {
+    console.error("Database query failed:", error);
+    return (
+      <div className="mt-16 rounded-lg border border-red-500/50 bg-red-500/10 p-12 text-center text-white/60">
+        <h3 className="text-lg font-semibold text-red-400">Error al cargar los datos</h3>
+        <p className="mt-2 text-sm">
+          No se pudo establecer conexión con la base de datos. Por favor, inténtalo de nuevo más tarde.
+        </p>
+      </div>
+    );
+  }
 
   if (reports.length === 0) {
     return (
