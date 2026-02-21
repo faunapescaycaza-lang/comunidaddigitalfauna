@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { createId } from "@paralleldrive/cuid2";
+import { cloudinary } from "@/lib/cloudinary";
 
 // Esquema de validación con Zod
 
@@ -19,11 +20,11 @@ const ReportSchema = z.object({
 
   fecha: z.coerce.date({ message: "Fecha inválida" }),
 
-    localidad: z.string().min(2, "La localidad es muy corta"),
+  localidad: z.string().min(2, "La localidad es muy corta"),
 
-    imageUrl: z.string().url("URL de imagen inválida").or(z.literal("")).optional().nullable(),
+  imageUrl: z.string().url("URL de imagen inválida").or(z.literal("")).optional().nullable(),
 
-  });
+});
 
 
 
@@ -51,119 +52,119 @@ export async function createReport(
 
 ): Promise<FormState> {
 
-        const validatedFields = ReportSchema.safeParse({
+  const validatedFields = ReportSchema.safeParse({
 
-          nombre: formData.get("nombre"),
+    nombre: formData.get("nombre"),
 
-          apellido: formData.get("apellido"),
+    apellido: formData.get("apellido"),
 
-          email: formData.get("email"),
+    email: formData.get("email"),
 
-          fecha: formData.get("fecha"),
+    fecha: formData.get("fecha"),
 
-          localidad: formData.get("localidad"),
+    localidad: formData.get("localidad"),
 
-          imageUrl: formData.get("imageUrl"),
+    imageUrl: formData.get("imageUrl"),
 
-        });
+  });
 
-    
 
-      if (!validatedFields.success) {
 
-        console.error("Validation Errors:", validatedFields.error.flatten().fieldErrors);
+  if (!validatedFields.success) {
 
-        return {
+    console.error("Validation Errors:", validatedFields.error.flatten().fieldErrors);
 
-          message: "Error de validación. Por favor, revisa los campos.",
+    return {
 
-          errors: validatedFields.error.flatten().fieldErrors,
+      message: "Error de validación. Por favor, revisa los campos.",
 
-          success: false,
+      errors: validatedFields.error.flatten().fieldErrors,
 
-        };
+      success: false,
+
+    };
+
+  }
+
+
+
+  try {
+
+    const { nombre, apellido, email, fecha, localidad, imageUrl } = validatedFields.data;
+
+
+
+    const newReportId = createId();
+
+
+
+    await db.transaction().execute(async (trx) => {
+
+      await trx
+
+        .insertInto("Reporte")
+
+        .values({
+
+          id: newReportId,
+
+          nombre,
+
+          apellido,
+
+          email,
+
+          fecha,
+
+          localidad,
+
+          createdAt: new Date(),
+
+        })
+
+        .execute();
+
+
+
+      console.log("Received imageUrl:", imageUrl);
+
+
+
+
+
+
+
+      if (imageUrl && imageUrl !== "") {
+
+
+
+        const result = await trx.insertInto("Imagen").values({
+
+
+
+          id: createId(),
+
+
+
+          url: imageUrl,
+
+
+
+          reporteId: newReportId,
+
+
+
+        }).execute();
+
+
+
+        console.log("Imagen insertion result:", result);
+
+
 
       }
 
-    
-
-      try {
-
-            const { nombre, apellido, email, fecha, localidad, imageUrl } = validatedFields.data;
-
-        
-
-            const newReportId = createId();
-
-        
-
-            await db.transaction().execute(async (trx) => {
-
-              await trx
-
-                .insertInto("Reporte")
-
-                .values({
-
-                                      id: newReportId,
-
-                                      nombre,
-
-                                      apellido,
-
-                                      email,
-
-                                      fecha,
-
-                                      localidad,
-
-                                      createdAt: new Date(),
-
-                                    })
-
-                                    .execute();
-
-        
-
-              console.log("Received imageUrl:", imageUrl);
-
-
-
-
-
-
-
-                            if (imageUrl && imageUrl !== "") {
-
-        
-
-                              const result = await trx.insertInto("Imagen").values({
-
-        
-
-                                id: createId(),
-
-        
-
-                                url: imageUrl,
-
-        
-
-                                reporteId: newReportId,
-
-        
-
-                              }).execute();
-
-        
-
-                              console.log("Imagen insertion result:", result);
-
-        
-
-                            }
-
-            });
+    });
 
 
 
@@ -171,11 +172,11 @@ export async function createReport(
 
 
 
-    
 
 
 
-        if (validatedFields.data.email) {
+
+    if (validatedFields.data.email) {
       try {
         // Disparar la API de envío de correo sin esperar la respuesta
         fetch(new URL('/api/send-email', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'), {
@@ -197,43 +198,33 @@ export async function createReport(
 
 
 
-    
 
 
 
-        return {
+
+    return {
 
 
 
-          message: "¡Avistamiento registrado con éxito!",
+      message: "¡Avistamiento registrado con éxito!",
 
 
 
-          success: true,
+      success: true,
 
 
 
-        };
+    };
 
   } catch (error) {
 
-      console.error("Upload/Database Error:", error);
+    console.error("Upload/Database Error:", error);
 
-      if (error instanceof Error && (error as any).code === '23505') {
-
-        return {
-
-          message: "Ya existe un reporte con este email.",
-
-          success: false,
-
-        };
-
-      }
+    if (error instanceof Error && (error as any).code === '23505') {
 
       return {
 
-        message: "Error en la subida de archivos o en la base de datos.",
+        message: "Ya existe un reporte con este email.",
 
         success: false,
 
@@ -241,116 +232,126 @@ export async function createReport(
 
     }
 
-    }
+    return {
 
-    
+      message: "Error en la subida de archivos o en la base de datos.",
 
-    export async function deleteReport(reportId: string): Promise<FormState> {
+      success: false,
 
-      try {
+    };
 
-        // Eliminar imágenes asociadas en Cloudinary si existen
+  }
 
-        const imagenes = await db
+}
 
-          .selectFrom("Imagen")
 
-          .where("reporteId", "=", reportId)
 
-          .selectAll()
+export async function deleteReport(reportId: string): Promise<FormState> {
 
-          .execute();
+  try {
 
-    
+    // Eliminar imágenes asociadas en Cloudinary si existen
 
-        for (const imagen of imagenes) {
+    const imagenes = await db
 
-          // Extraer public_id de la URL de Cloudinary
+      .selectFrom("Imagen")
 
-          const publicId = imagen.url.split('/').pop()?.split('.')[0];
+      .where("reporteId", "=", reportId)
 
-          if (publicId) {
+      .selectAll()
 
-            await cloudinary.uploader.destroy(`fauna-comunidad/${publicId}`);
+      .execute();
 
-          }
 
-        }
 
-    
+    for (const imagen of imagenes) {
 
-        await db.transaction().execute(async (trx) => {
+      // Extraer public_id de la URL de Cloudinary
 
-          // Eliminar las imágenes de la base de datos
+      const publicId = imagen.url.split('/').pop()?.split('.')[0];
 
-          await trx
+      if (publicId) {
 
-            .deleteFrom("Imagen")
-
-            .where("reporteId", "=", reportId)
-
-            .execute();
-
-    
-
-          // Eliminar el reporte de la base de datos
-
-          await trx
-
-            .deleteFrom("Reporte")
-
-            .where("id", "=", reportId)
-
-            .execute();
-
-        });
-
-    
-
-        revalidatePath("/"); // Revalidar la página principal para mostrar los cambios
-
-    
-
-        return {
-
-          message: "Reporte eliminado con éxito.",
-
-          success: true,
-
-        };
-
-      } catch (error) {
-
-        console.error("Error al eliminar el reporte:", error);
-
-        return {
-
-          message: "Error al eliminar el reporte.",
-
-          success: false,
-
-        };
+        await cloudinary.uploader.destroy(`fauna-comunidad/${publicId}`);
 
       }
 
     }
 
-    export async function verifyFeedPassword(password: string): Promise<FormState> {
-      if (password === "A1s2d3f4") {
-        const { cookies } = await import("next/headers");
-        (await cookies()).set("feedAuth", "true", {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          maxAge: 60 * 60 * 24, // 1 day
-          path: "/",
-        });
-        return {
-          message: "Acceso concedido.",
-          success: true,
-        };
-      }
-      return {
-        message: "Contraseña incorrecta.",
-        success: false,
-      };
-    }
+
+
+    await db.transaction().execute(async (trx) => {
+
+      // Eliminar las imágenes de la base de datos
+
+      await trx
+
+        .deleteFrom("Imagen")
+
+        .where("reporteId", "=", reportId)
+
+        .execute();
+
+
+
+      // Eliminar el reporte de la base de datos
+
+      await trx
+
+        .deleteFrom("Reporte")
+
+        .where("id", "=", reportId)
+
+        .execute();
+
+    });
+
+
+
+    revalidatePath("/"); // Revalidar la página principal para mostrar los cambios
+
+
+
+    return {
+
+      message: "Reporte eliminado con éxito.",
+
+      success: true,
+
+    };
+
+  } catch (error) {
+
+    console.error("Error al eliminar el reporte:", error);
+
+    return {
+
+      message: "Error al eliminar el reporte.",
+
+      success: false,
+
+    };
+
+  }
+
+}
+
+export async function verifyFeedPassword(password: string): Promise<FormState> {
+  if (password === "A1s2d3f4") {
+    const { cookies } = await import("next/headers");
+    (await cookies()).set("feedAuth", "true", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
+    });
+    return {
+      message: "Acceso concedido.",
+      success: true,
+    };
+  }
+  return {
+    message: "Contraseña incorrecta.",
+    success: false,
+  };
+}
