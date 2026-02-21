@@ -1,0 +1,64 @@
+import { db } from "../lib/db";
+import { ReportCard } from "./ReportCard";
+import type { Reporte, Imagen } from "../lib/db-types";
+
+type ReportWithImages = Reporte & {
+  imagenes: Imagen[];
+};
+
+export const Feed = async ({ isAdmin }: { isAdmin: boolean }) => { // Accept isAdmin as prop
+  let reports: ReportWithImages[] = [];
+
+  try {
+    const reportesData = await db
+      .selectFrom("Reporte")
+      .selectAll()
+      .orderBy("createdAt", "desc")
+      .execute();
+
+    reports = await Promise.all(
+      reportesData.map(async (reporte): Promise<ReportWithImages> => {
+        const imagenes = await db
+          .selectFrom("Imagen")
+          .selectAll()
+          .where("reporteId", "=", reporte.id)
+          .execute();
+        return { ...reporte, imagenes } as unknown as ReportWithImages;
+      })
+    );
+  } catch (error) {
+    console.error("Database query failed:", error);
+    return (
+      <div className="mt-16 rounded-lg border border-red-500/50 bg-red-500/10 p-12 text-center text-white/60">
+        <h3 className="text-lg font-semibold text-red-400">Error al cargar los datos</h3>
+        <p className="mt-2 text-sm">
+          No se pudo establecer conexión con la base de datos. Por favor, inténtalo de nuevo más tarde.
+        </p>
+      </div>
+    );
+  }
+
+  if (reports.length === 0) {
+    return (
+      <div className="mt-16 rounded-lg border border-dashed border-white/20 bg-white/5 p-12 text-center text-white/60">
+        <h3 className="text-lg font-semibold text-white/80">Aún no hay avistamientos</h3>
+        <p className="mt-2 text-sm">
+          Sé el primero en registrar uno usando el formulario de arriba.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-16">
+      <h2 className="mb-8 text-3xl font-bold tracking-tight text-white/90">
+        Registro de Guardianes
+      </h2>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {reports.map((report, index) => (
+          <ReportCard key={report.id} report={report} index={index + 1} isAdmin={isAdmin} />
+        ))}
+      </div>
+    </div>
+  );
+};
